@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext as _
-from django.contrib.auth.models import AbstractBaseUser
+from django.core.mail import send_mail
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 
 class ZoneChoice(models.TextChoices): 
@@ -71,9 +72,10 @@ class UserManager(BaseUserManager):
         user = self.create_user(
             email,
             password=password,
-            user_role=1,
+            user_role="operational_head",
         )
         user.is_active = True
+        user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
         return user
@@ -81,15 +83,16 @@ class UserManager(BaseUserManager):
     def create(self, **kwargs):
         return self.model.objects.create_user(**kwargs)
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_("Email"), max_length=255, unique=True)
     password = models.CharField(_("Password"), max_length=200)
-    user_role = models.PositiveSmallIntegerField(
-        _("User Role"), choices=UserRoleChoices.choices
+    user_role = models.CharField(
+        _("User Role"), max_length=30, choices=UserRoleChoices.choices
     )
     is_active = models.BooleanField(_("Active Status"), default=True)
+    is_staff = models.BooleanField(_("Staff Status"), default=False)
     is_superuser = models.BooleanField(_("Superuser Status"), default=False)
-
+    
     objects = UserManager()
 
     USERNAME_FIELD = "email"
@@ -107,3 +110,20 @@ class User(AbstractBaseUser):
         "Does the user have permissions to view the app `app_label`?"
         # Simplest possible answer: Yes, always
         return True
+
+    def clean(self):
+        super().clean()
+        self.email = self.__class__.objects.normalize_email(self.email)
+
+    def email_user(self, subject, message, from_email=None, **kwargs):
+        """Send an email to this user."""
+        send_mail(subject, message, from_email, [self.email], **kwargs)
+    
+class SpecificPermission(models.Model):
+    user_fk = models.ForeignKey(User, on_delete=models.CASCADE, related_name="specific_permissions")
+    zone_fk = models.ForeignKey(Zone, on_delete=models.CASCADE, null=True, blank=True)
+    state_fk = models.ForeignKey(State, on_delete=models.CASCADE, null=True, blank=True)
+    district_fk = models.ForeignKey(District, on_delete=models.CASCADE, null=True, blank=True)
+    premise_fk = models.ForeignKey(Premise, on_delete=models.CASCADE, null=True, blank=True)
+    warehouse_fk = models.ForeignKey(Warehouse, on_delete=models.CASCADE, null=True, blank=True)
+    

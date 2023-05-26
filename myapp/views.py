@@ -6,10 +6,9 @@ User = get_user_model()
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from myapp.models import Zone,District,State
-from myapp.customs.authentications import get_tokens_for_user
-from myapp.customs.permission import ZonePermission
+from myapp.authentications import get_tokens_for_user
+from myapp.permission import ZonePermission
 from myapp.serializer import LoginSerializer,UserSerializer,ZoneSerializer,DistrictSerializer,StateSerializer
-# Create your views here.
 class home(APIView):
     def get(self,request):
         return Response({"msg":"no of lines"})
