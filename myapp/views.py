@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from myapp.models import Zone,District,State
 from myapp.authentications import get_tokens_for_user
-from myapp.permission import ZonePermission
+from myapp.permission import ZonePermission, CheckSpecificPermission
 from myapp.serializer import LoginSerializer,UserSerializer,ZoneSerializer,DistrictSerializer,StateSerializer
 class home(APIView):
     def get(self,request):
@@ -37,6 +37,7 @@ class login(APIView):
 class ZoneApi(ModelViewSet):
     queryset = Zone.objects.all()
     serializer_class = ZoneSerializer
+    permission_classes = [ZonePermission, CheckSpecificPermission]
 
     def list(self, request, *args, **kwargs):
         zone = Zone.objects.all()

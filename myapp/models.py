@@ -19,20 +19,28 @@ class Zone(models.Model):
         ]
 
 class State(models.Model):
-    state_name = models.CharField(_("State Name"), max_length=50)
-    zonefk = models.ForeignKey(Zone, verbose_name=_("Zone Foreign Key"), on_delete=models.CASCADE)
+    name = models.CharField(_("State Name"), max_length=50)
+    fk = models.ForeignKey(Zone, verbose_name=_("Zone Foreign Key"), on_delete=models.CASCADE)
 
 class District(models.Model):
-    district_name = models.CharField(_("Name"), max_length=50)
-    statefk = models.ForeignKey(State, verbose_name=_("Foreign Key"), on_delete=models.CASCADE)
+    name = models.CharField(_("Name"), max_length=50)
+    fk = models.ForeignKey(State, verbose_name=_("Foreign Key"), on_delete=models.CASCADE)
+
+class Cluster(models.Model):
+    name = models.CharField(_("Name"), max_length=50)
+    fk = models.ForeignKey(District, verbose_name=_("Foreign Key"), on_delete=models.CASCADE)
     
 class Premise(models.Model):
     name = models.CharField(_("Name"), max_length=50)
-    district_fk = models.ForeignKey(District, verbose_name=_("Foreign Key"), on_delete=models.CASCADE)
+    fk = models.ForeignKey(Cluster, verbose_name=_("Foreign Key"), on_delete=models.CASCADE)
 
 class Warehouse(models.Model):
     name = models.CharField(_("Warehouse Name"), max_length=50)
-    premise_fk = models.ForeignKey(Premise, verbose_name=_("Foreign Key"), on_delete=models.CASCADE)
+    fk = models.ForeignKey(Premise, verbose_name=_("Foreign Key"), on_delete=models.CASCADE)
+
+class UserRole(models.Model):
+    name = models.CharField(max_length=50)
+    rank = models.PositiveIntegerField()
     
 class UserRoleChoices(models.TextChoices):
     OH = "operational_head", _("operational_head")
@@ -124,6 +132,7 @@ class SpecificPermission(models.Model):
     zone_fk = models.ForeignKey(Zone, on_delete=models.CASCADE, null=True, blank=True)
     state_fk = models.ForeignKey(State, on_delete=models.CASCADE, null=True, blank=True)
     district_fk = models.ForeignKey(District, on_delete=models.CASCADE, null=True, blank=True)
+    cluster_fk = models.ForeignKey(Cluster, on_delete=models.CASCADE, null=True, blank=True)
     premise_fk = models.ForeignKey(Premise, on_delete=models.CASCADE, null=True, blank=True)
     warehouse_fk = models.ForeignKey(Warehouse, on_delete=models.CASCADE, null=True, blank=True)
     
