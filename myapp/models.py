@@ -94,9 +94,10 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_("Email"), max_length=255, unique=True)
     password = models.CharField(_("Password"), max_length=200)
-    user_role = models.CharField(
-        _("User Role"), max_length=30, choices=UserRoleChoices.choices
-    )
+    # user_role = models.CharField(
+    #     _("User Role"), max_length=30, choices=UserRoleChoices.choices
+    # )
+    user_role = models.ForeignKey(UserRole, on_delete=models.CASCADE)
     is_active = models.BooleanField(_("Active Status"), default=True)
     is_staff = models.BooleanField(_("Staff Status"), default=False)
     is_superuser = models.BooleanField(_("Superuser Status"), default=False)

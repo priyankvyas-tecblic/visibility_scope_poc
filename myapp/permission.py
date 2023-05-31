@@ -2,8 +2,8 @@ from rest_framework import permissions
 
 class RolePermission(permissions.BasePermission):
     
-    def has_permission(self, request, view):
-        if request.user.user_role is "operational_head":
+    def has_permission(self, request, view, rank):
+        if request.user.user_role <= rank:
             return True
         return False
     
